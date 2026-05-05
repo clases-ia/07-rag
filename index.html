@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="index_files/libs/clipboard/clipboard.min.js"></script>
+<script src="index_files/libs/quarto-html/tabby.min.js"></script>
+<script src="index_files/libs/quarto-html/popper.min.js"></script>
+<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting-4c7b890cc350be7067044af900615741.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.8.25">
+
+  <title>Retrieval-Augmented Generation (RAG)</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="index_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="index_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #f8f8f2; background-color: #2e3440; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #f8f8f2; } /* Normal */
+    code span.al { color: #ff5555; font-weight: bold; } /* Alert */
+    code span.an { color: #75715e; } /* Annotation */
+    code span.at { color: #f92672; } /* Attribute */
+    code span.bn { color: #ae81ff; } /* BaseN */
+    code span.bu { color: #66d9ef; } /* BuiltIn */
+    code span.cf { color: #f92672; } /* ControlFlow */
+    code span.ch { color: #e6db74; } /* Char */
+    code span.cn { color: #ae81ff; } /* Constant */
+    code span.co { color: #75715e; } /* Comment */
+    code span.cv { color: #75715e; } /* CommentVar */
+    code span.do { color: #75715e; } /* Documentation */
+    code span.dt { color: #66d9ef; font-style: italic; } /* DataType */
+    code span.dv { color: #ae81ff; } /* DecVal */
+    code span.er { color: #ff5555; text-decoration: underline; } /* Error */
+    code span.ex { color: #a6e22e; font-weight: bold; } /* Extension */
+    code span.fl { color: #ae81ff; } /* Float */
+    code span.fu { color: #a6e22e; } /* Function */
+    code span.im { color: #f92672; } /* Import */
+    code span.in { color: #f1fa8c; } /* Information */
+    code span.kw { color: #f92672; } /* Keyword */
+    code span.op { color: #f8f8f2; } /* Operator */
+    code span.ot { color: #a6e22e; } /* Other */
+    code span.pp { color: #f92672; } /* Preprocessor */
+    code span.re { color: #75715e; } /* RegionMarker */
+    code span.sc { color: #ae81ff; } /* SpecialChar */
+    code span.ss { color: #e6db74; } /* SpecialString */
+    code span.st { color: #e6db74; } /* String */
+    code span.va { color: #f8f8f2; } /* Variable */
+    code span.vs { color: #e6db74; } /* VerbatimString */
+    code span.wa { color: #ff5555; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="index_files/libs/revealjs/dist/theme/quarto-44f1a9661b4db4a8b4fcd43d78044253.css">
+  <link rel="stylesheet" href="ine_quarto_style_v2025_v2.css">
+  <link href="index_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="index_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="index_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="index_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+
+<section id="portada" class="slide level2 portada">
+<h2></h2>
+<div class="logo-box">
+<p><img src="imagenes/logo_portada3.png"></p>
+</div>
+<div class="title-area">
+<h1>
+Retrieval-Augmented Generation (RAG)
+</h1>
+<h2>
+Unidad de Gobierno de Datos
+</h2>
+<p>
+<strong>Abril 2026</strong>
+</p>
+</div>
+</section>
+<section id="outline" class="slide level2">
+<h2>Outline</h2>
+<div class="agenda-grid">
+<div class="agenda-item">
+<h3>
+01
+</h3>
+<p>
+<strong>El problema</strong><br>Limitaciones de los LLMs y por qué necesitamos algo más
+</p>
+</div>
+<div class="agenda-item">
+<h3>
+02
+</h3>
+<p>
+<strong>La solución RAG</strong><br>Qué es, cómo funciona y qué lo hace diferente
+</p>
+</div>
+<div class="agenda-item">
+<h3>
+03
+</h3>
+<p>
+<strong>Arquitectura y componentes</strong><br>Los 6 bloques que forman un sistema RAG
+</p>
+</div>
+<div class="agenda-item">
+<h3>
+04
+</h3>
+<p>
+<strong>Implementación</strong><br>Pipeline completo con LangChain y OpenRouter
+</p>
+</div>
+<div class="agenda-item">
+<h3>
+05
+</h3>
+<p>
+<strong>Más allá de lo básico</strong><br>Estrategias avanzadas, evaluación con RAGAs
+</p>
+</div>
+<div class="agenda-item">
+<h3>
+06
+</h3>
+<p>
+<strong>Casos de uso y límites</strong><br>Cuándo usar RAG, cuándo no, y próximos pasos
+</p>
+</div>
+</div>
+</section>
+<section id="el-problema-qué-no-pueden-hacer-los-llms" class="slide level2">
+<h2>01 · El problema: ¿qué no pueden hacer los LLMs?</h2>
+<p>Los modelos de lenguaje son poderosos, pero tienen <strong>limitaciones estructurales</strong>:</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="problem-box">
+<h4>
+❌ Conocimiento estático
+</h4>
+<p>
+Su saber se congela en la <strong>fecha de corte</strong> del entrenamiento. Nada de lo que ocurrió después existe para ellos.
+</p>
+</div>
+<div class="problem-box">
+<h4>
+❌ Sin acceso a documentos privados
+</h4>
+<p>
+No conocen los manuales, reportes ni bases de datos <strong>de tu organización</strong>.
+</p>
+</div>
+<div class="problem-box">
+<h4>
+❌ Alucinaciones
+</h4>
+<p>
+Cuando no saben, <strong>inventan</strong> con total confianza. No citan fuentes, no admiten ignorancia.
+</p>
+</div>
+</div><div class="column" style="width:50%;">
+<p>Preguntas que los LLMs no pueden responder bien</p>
+<blockquote>
+<p><em>“¿Cuál es el código CIUO-08-CL para un pirquinero?”</em></p>
+</blockquote>
+<blockquote>
+<p><em>“¿Cómo ha evolucionado la tasa de desempleo según la última ENE en Chile?”</em></p>
+</blockquote>
+<blockquote>
+<p><em>“¿Cuál es la población de Curanilahue según el último censo?”</em></p>
+</blockquote>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>
+Estas preguntas requieren documentos específicos que el LLM nunca vio durante su entrenamiento.
+</p>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="la-solución-qué-es-rag" class="slide level2">
+<h2>02 · La solución: qué es RAG</h2>
+<blockquote>
+<p><strong>RAG</strong> (Retrieval-Augmented Generation) = buscar primero, generar después.</p>
+</blockquote>
+<p>Antes de responder, el sistema <strong>recupera documentos relevantes</strong> y los entrega al LLM como contexto.</p>
+<!-- :::: {.columns}
+::: {.column width="50%"}
+### Sin RAG
+```
+Pregunta → LLM → Respuesta
+                (solo memoria interna)
+```
+:::
+::: {.column width="50%"}
+### Con RAG
+```
+Pregunta → Búsqueda en documentos
+         → Documentos relevantes
+         → LLM + contexto → Respuesta
+                            (fundamentada)
+```
+:::
+:::: -->
+<img data-src="imagenes/ChatGPT%20Image%2021%20abr%202026,%2015_04_17_2.png" class="r-stretch">
+</section>
+<section id="a-arquitectura-rag-el-flujo-completo" class="slide level2">
+<h2>03a · Arquitectura RAG: el flujo completo</h2>
+<img data-src="imagenes/ChatGPT%20Image%2021%20abr%202026,%2014_51_22.png" class="r-stretch">
+<aside class="notes">
+<p>Los documentos sin procesar, suelen ser demasiado grandes para que la mayoría de los LLM los procesen todos a la vez. Por lo tanto, necesitamos dividirlos en fragmentos más pequeños y fáciles de procesar.</p>
+<p>La elección del tamaño de los fragmentos en RAG es crucial. Debe ser lo suficientemente pequeño para garantizar la relevancia y reducir el ruido, pero lo suficientemente grande para mantener la integridad del contexto.</p>
+<p>Una vez dividido, cada segmento de texto se transforma en una representación vectorial numérica (un embedding) que captura su significado semántico.</p>
+<p>Los fragmentos se almacenan en una base de datos vectorial especializada.</p>
+<p>Estas bases de datos usan búsqueda por similitud, que permite una rápida recuperación de fragmentos relevantes para la consulta del usuario.</p>
+<p>Cuando un usuario envía una consulta, se activa el proceso de recuperación</p>
+<p>La consulta se transforma primero en un vector utilizando el mismo modelo de embedding empleado para crear la base de datos de vectores.</p>
+<p>A continuación, la base de datos compara este vector de consulta con los millones de vectores de fragmentos almacenados.</p>
+<p>La proximidad o similitud se mide normalmente usando la similitud de coseno</p>
+<p>Una vez recuperado el contexto relevante se envía al modelo de lenguaje (GPT-4, Claude, Llama, Gemini, etc.), que sintetiza la información recuperada para generar una respuesta referenciada.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="b-los-6-componentes-principales" class="slide level2">
+<h2>03b · Los 6 componentes principales</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Componente</th>
+<th>Qué hace</th>
+<th>Ejemplo típico</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Document Loader</strong></td>
+<td>Carga documentos de diversas fuentes</td>
+<td><code>PyPDFLoader</code>, <code>WebBaseLoader</code></td>
+</tr>
+<tr class="even">
+<td><strong>Text Splitter</strong></td>
+<td>Divide documentos en fragmentos (chunks)</td>
+<td>500 tokens, solapamiento 50</td>
+</tr>
+<tr class="odd">
+<td><strong>Embedding Model</strong></td>
+<td>Convierte texto en vectores numéricos</td>
+<td><code>all-MiniLM-L6-v2</code>, <code>multilingual-e5</code></td>
+</tr>
+<tr class="even">
+<td><strong>Vector Store</strong></td>
+<td>Almacena y busca vectores eficientemente</td>
+<td>ChromaDB, FAISS, Pinecone</td>
+</tr>
+<tr class="odd">
+<td><strong>Retriever</strong></td>
+<td>Recupera chunks relevantes para una pregunta</td>
+<td>Top-3 por similitud coseno</td>
+</tr>
+<tr class="even">
+<td><strong>LLM</strong></td>
+<td>Genera la respuesta final con el contexto</td>
+<td>GPT-4 (OpenAI), Claude (Anthropic), Gemini (Google), Llama 3 (Meta)</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Para empezar:</strong> <code>PyPDFLoader</code> + <code>RecursiveCharacterTextSplitter</code> + <code>HuggingFaceEmbeddings</code> + <code>ChromaDB</code> es la combinación más portable y sin costos.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="a-pipeline-rag-completo-con-langchain" class="slide level2 full-code">
+<h2>04a · Pipeline RAG completo con LangChain</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="annotated-cell-1"><pre class="sourceCode numberSource python code-annotation-code number-lines code-with-copy code-annotated"><code class="sourceCode python"><span id="annotated-cell-1-1"><a href="#annotated-cell-1-1"></a><span class="im">from</span> langchain_community.document_loaders <span class="im">import</span> PyPDFLoader  </span>
+<span id="annotated-cell-1-2"><a href="#annotated-cell-1-2"></a><span class="im">from</span> langchain_text_splitters <span class="im">import</span> RecursiveCharacterTextSplitter </span>
+<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3"></a><span class="im">from</span> langchain_community.embeddings <span class="im">import</span> HuggingFaceEmbeddings</span>
+<span id="annotated-cell-1-4"><a href="#annotated-cell-1-4"></a><span class="im">from</span> langchain_community.vectorstores <span class="im">import</span> Chroma </span>
+<span id="annotated-cell-1-5"><a href="#annotated-cell-1-5"></a><span class="im">from</span> langchain_openai <span class="im">import</span> ChatOpenAI </span>
+<span id="annotated-cell-1-6"><a href="#annotated-cell-1-6"></a><span class="im">from</span> langchain_core.prompts <span class="im">import</span> PromptTemplate </span>
+<span id="annotated-cell-1-7"><a href="#annotated-cell-1-7"></a><span class="im">from</span> langchain_core.runnables <span class="im">import</span> RunnablePassthrough </span>
+<span id="annotated-cell-1-8"><a href="#annotated-cell-1-8"></a></span>
+<button class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1">1</button><span id="annotated-cell-1-9" class="code-annotation-target"><a href="#annotated-cell-1-9"></a>loader <span class="op">=</span> PyPDFLoader(<span class="st">"reporte_anual.pdf"</span>)</span>
+<span id="annotated-cell-1-10"><a href="#annotated-cell-1-10"></a>docs <span class="op">=</span> loader.load()</span>
+<span id="annotated-cell-1-11"><a href="#annotated-cell-1-11"></a></span>
+<button class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2">2</button><span id="annotated-cell-1-12" class="code-annotation-target"><a href="#annotated-cell-1-12"></a>splitter <span class="op">=</span> RecursiveCharacterTextSplitter(chunk_size<span class="op">=</span><span class="dv">500</span>, chunk_overlap<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="annotated-cell-1-13"><a href="#annotated-cell-1-13"></a>chunks <span class="op">=</span> splitter.split_documents(docs)</span>
+<span id="annotated-cell-1-14"><a href="#annotated-cell-1-14"></a></span>
+<button class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="3">3</button><span id="annotated-cell-1-15" class="code-annotation-target"><a href="#annotated-cell-1-15"></a>embeddings <span class="op">=</span> HuggingFaceEmbeddings(model_name<span class="op">=</span><span class="st">"all-MiniLM-L6-v2"</span>)</span>
+<span id="annotated-cell-1-16"><a href="#annotated-cell-1-16"></a>vectorstore <span class="op">=</span> Chroma.from_documents(chunks, embeddings)</span>
+<span id="annotated-cell-1-17"><a href="#annotated-cell-1-17"></a></span>
+<button class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="4">4</button><span id="annotated-cell-1-18" class="code-annotation-target"><a href="#annotated-cell-1-18"></a>retriever <span class="op">=</span> vectorstore.as_retriever(search_type <span class="op">=</span> <span class="st">"similarity"</span>, k<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="annotated-cell-1-19"><a href="#annotated-cell-1-19"></a></span>
+<button class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="5">5</button><span id="annotated-cell-1-20" class="code-annotation-target"><a href="#annotated-cell-1-20"></a>prompt <span class="op">=</span> PromptTemplate(<span class="st">"Eres un asistente experto en análisis de reportes. Responde a la pregunta usando SOLO el  siguiente contexto:</span><span class="ch">\n\n</span><span class="sc">{context}</span><span class="ch">\n\n</span><span class="st">Pregunta: </span><span class="sc">{question}</span><span class="ch">\n</span><span class="st">Respuesta:"</span>)</span>
+<span id="annotated-cell-1-21"><a href="#annotated-cell-1-21"></a></span>
+<button class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="6">6</button><span id="annotated-cell-1-22" class="code-annotation-target"><a href="#annotated-cell-1-22"></a>llm <span class="op">=</span> ChatOpenAI(</span>
+<span id="annotated-cell-1-23"><a href="#annotated-cell-1-23"></a>    base_url<span class="op">=</span><span class="st">"https://openrouter.ai/api/v1"</span>,    </span>
+<span id="annotated-cell-1-24"><a href="#annotated-cell-1-24"></a>    api_key<span class="op">=</span><span class="st">"sk-or-..."</span>,                        </span>
+<span id="annotated-cell-1-25"><a href="#annotated-cell-1-25"></a>    model<span class="op">=</span><span class="st">"meta-llama/llama-3.3-70b-instruct:free"</span>  </span>
+<span id="annotated-cell-1-26"><a href="#annotated-cell-1-26"></a>)</span>
+<span id="annotated-cell-1-27"><a href="#annotated-cell-1-27"></a></span>
+<button class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="7">7</button><span id="annotated-cell-1-28" class="code-annotation-target"><a href="#annotated-cell-1-28"></a>chain  <span class="op">=</span> (</span>
+<span id="annotated-cell-1-29"><a href="#annotated-cell-1-29"></a>    {<span class="st">"question"</span>: RunnablePassthrough(), <span class="st">"context"</span>: retriever}</span>
+<span id="annotated-cell-1-30"><a href="#annotated-cell-1-30"></a>    <span class="op">|</span> prompt </span>
+<span id="annotated-cell-1-31"><a href="#annotated-cell-1-31"></a>    <span class="op">|</span> llm </span>
+<span id="annotated-cell-1-32"><a href="#annotated-cell-1-32"></a>)</span>
+<span id="annotated-cell-1-33"><a href="#annotated-cell-1-33"></a></span>
+<button class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="8">8</button><span id="annotated-cell-1-34" class="code-annotation-target"><a href="#annotated-cell-1-34"></a>respuesta <span class="op">=</span> chain.invoke(<span class="st">"¿Cuáles fueron los principales hallazgos?"</span>)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<dl class="code-annotation-container-hidden code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="9,10" data-code-annotation="1">Carga el PDF completo — cada página queda como un objeto <code>Document</code> con texto y metadatos</span>
+</dd>
+<dt data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="12,13" data-code-annotation="2">Divide el texto en fragmentos de 500 caracteres con 50 de solapamiento para no perder contexto entre chunks</span>
+</dd>
+<dt data-target-cell="annotated-cell-1" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="15,16" data-code-annotation="3">Convierte cada chunk a vector con un embedding multilingüe y los persiste en ChromaDB (solo se ejecuta una vez)</span>
+</dd>
+<dt data-target-cell="annotated-cell-1" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="18" data-code-annotation="4">Crea el retriever: ante cada pregunta, busca los 3 chunks más similares semánticamente</span>
+</dd>
+<dt data-target-cell="annotated-cell-1" data-target-annotation="5">5</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="20" data-code-annotation="5">Define el prompt que instruye al LLM a responder <strong>solo</strong> con el contexto recuperado</span>
+</dd>
+<dt data-target-cell="annotated-cell-1" data-target-annotation="6">6</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="22,26" data-code-annotation="6">Conecta al LLM gratuito via OpenRouter con una API compatible con OpenAI</span>
+</dd>
+<dt data-target-cell="annotated-cell-1" data-target-annotation="7">7</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="28,32" data-code-annotation="7">Encadena retriever + prompt + LLM usando la sintaxis LCEL (<code>|</code>): cada componente recibe el output del anterior</span>
+</dd>
+<dt data-target-cell="annotated-cell-1" data-target-annotation="8">8</dt>
+<dd>
+<span data-code-cell="annotated-cell-1" data-code-lines="34" data-code-annotation="8">Invoca la cadena completa — el retriever busca contexto, el prompt lo formatea y el LLM genera la respuesta</span>
+</dd>
+</dl>
+<aside class="notes">
+<p>chunk_size=500 significa que cada trozo puede tener máximo 500 caracteres</p>
+<p>chunk_overlap=50 significa que cada trozo comparte 50 caracteres con el trozo siguiente. Esto existe para no perder contexto en los bordes — si una idea empieza al final de un trozo y termina al principio del siguiente, el solapamiento garantiza que algún trozo la tenga completa.</p>
+<p>LCEL significa LangChain Expression Language — es la sintaxis del símbolo | que viste en el pipeline RAG.La idea es simple: el | significa “pasa el output de esto al input de lo siguiente”, igual que en una línea de producción:</p>
+<p>RunnablePassthrough() básicamente dice “toma lo que llegó y déjalo pasar tal cual” — su único trabajo es reenviar la pregunta original al key question del diccionario mientras el retriever trabaja en paralelo generando el context.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="b-langchain-el-framework-para-construir-con-llms" class="slide level2">
+<h2>04b · LangChain: el framework para construir con LLMs</h2>
+<blockquote>
+<p>LangChain es una librería Python que provee bloques estándar para cada componente de un pipeline LLM y una sintaxis simple (<code>|</code>) para encadenarlos.</p>
+</blockquote>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="ecosistema-de-paquetes">Ecosistema de paquetes</h3>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Paquete</th>
+<th>Qué provee</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>langchain-core</code></td>
+<td>Prompts, LCEL, interfaces base</td>
+</tr>
+<tr class="even">
+<td><code>langchain-community</code></td>
+<td>Loaders, embeddings, vector stores</td>
+</tr>
+<tr class="odd">
+<td><code>langchain-openai</code></td>
+<td>LLMs compatibles con OpenAI</td>
+</tr>
+<tr class="even">
+<td><code>langchain-huggingface</code></td>
+<td>Embeddings y modelos de HuggingFace</td>
+</tr>
+<tr class="odd">
+<td><code>langchain-chroma</code></td>
+<td>Integración con ChromaDB</td>
+</tr>
+<tr class="even">
+<td><code>langchain</code></td>
+<td>Chains y agentes de alto nivel</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>
+Cada paquete tiene su propio ciclo de vida — si ChromaDB cambia su API, solo se actualiza <code>langchain-chroma</code> sin afectar el resto.
+</p>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<h3 id="lcel-encadenar-componentes-con">LCEL: encadenar componentes con <code>|</code></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a><span class="im">from</span> langchain_core.runnables <span class="im">import</span> RunnablePassthrough</span>
+<span id="cb1-2"><a href=""></a><span class="im">from</span> langchain_core.prompts <span class="im">import</span> PromptTemplate</span>
+<span id="cb1-3"><a href=""></a><span class="im">from</span> langchain_openai <span class="im">import</span> ChatOpenAI</span>
+<span id="cb1-4"><a href=""></a></span>
+<span id="cb1-5"><a href=""></a>chain <span class="op">=</span> (</span>
+<span id="cb1-6"><a href=""></a>    {<span class="st">"question"</span>: RunnablePassthrough(),</span>
+<span id="cb1-7"><a href=""></a>     <span class="st">"context"</span>: retriever}</span>
+<span id="cb1-8"><a href=""></a>    <span class="op">|</span> prompt</span>
+<span id="cb1-9"><a href=""></a>    <span class="op">|</span> llm</span>
+<span id="cb1-10"><a href=""></a>)</span>
+<span id="cb1-11"><a href=""></a></span>
+<span id="cb1-12"><a href=""></a><span class="co"># Un solo invoke ejecuta toda la cadena:</span></span>
+<span id="cb1-13"><a href=""></a><span class="co"># retriever busca → prompt se arma → llm responde</span></span>
+<span id="cb1-14"><a href=""></a>chain.invoke(<span class="st">"¿Cuál es el código CIUO de un podólogo?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>
+LangChain se basa en la idea de encadenar operaciones. En esencia, es un pipeline de trabajo donde cada paso depende del resultado del anterior.
+</p>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="c-langchain-el-problema-con-langchain-agents" class="slide level2">
+<h2>04c · LangChain: el problema con LangChain agents</h2>
+<p>LangChain tiene un loop interno que tú <strong>no controlas directamente</strong>:</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li>Los <strong>agentes</strong> combinan modelos de lenguaje con herramientas para crear sistemas que pueden razonar sobre las tareas, decidir qué herramientas usar y trabajar de forma iterativa para encontrar soluciones.</li>
+<li>Las <strong>herramientas</strong> son funciones Python normales que el agente puede invocar cuando las necesita.</li>
+<li>El agente se ejecuta hasta que se cumple una condición de parada, es decir, cuando el modelo emite una salida final o se alcanza un límite de iteraciones.</li>
+<li>No puedes pausarlo, inspeccionarlo ni meter una aprobación humana en el medio.</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a><span class="im">from</span> langchain.agents <span class="im">import</span> create_react_agent, AgentExecutor</span>
+<span id="cb2-2"><a href=""></a><span class="im">from</span> langchain.tools <span class="im">import</span> tool</span>
+<span id="cb2-3"><a href=""></a></span>
+<span id="cb2-4"><a href=""></a><span class="co"># Herramienta 1: buscar en documentos</span></span>
+<span id="cb2-5"><a href=""></a><span class="at">@tool</span></span>
+<span id="cb2-6"><a href=""></a><span class="kw">def</span> buscar(pregunta: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb2-7"><a href=""></a>    <span class="co">"""Busca información."""</span></span>
+<span id="cb2-8"><a href=""></a>    <span class="cf">return</span> retriever.invoke(pregunta)  <span class="co"># el RAG que ya conocemos</span></span>
+<span id="cb2-9"><a href=""></a></span>
+<span id="cb2-10"><a href=""></a><span class="co"># Herramienta 2: calculadora</span></span>
+<span id="cb2-11"><a href=""></a><span class="at">@tool</span>  </span>
+<span id="cb2-12"><a href=""></a><span class="kw">def</span> calcular(operacion: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb2-13"><a href=""></a>    <span class="co">"""Ejecuta una operación matemática."""</span></span>
+<span id="cb2-14"><a href=""></a>    <span class="cf">return</span> <span class="bu">str</span>(<span class="bu">eval</span>(operacion))</span>
+<span id="cb2-15"><a href=""></a></span>
+<span id="cb2-16"><a href=""></a><span class="co"># El agente tiene acceso a ambas herramientas</span></span>
+<span id="cb2-17"><a href=""></a>tools <span class="op">=</span> [buscar, calcular]</span>
+<span id="cb2-18"><a href=""></a>agente <span class="op">=</span> create_react_agent(llm, tools, prompt)</span>
+<span id="cb2-19"><a href=""></a>executor <span class="op">=</span> AgentExecutor(agent<span class="op">=</span>agente, tools<span class="op">=</span>tools)</span>
+<span id="cb2-20"><a href=""></a></span>
+<span id="cb2-21"><a href=""></a>executor.invoke({<span class="st">"input"</span>: <span class="st">"¿Cuáles fueron los ingresos anuales?"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>
+El LLM no <em>ejecuta</em> las herramientas — solo decide <em>cuándo</em> llamarlas y con qué argumentos.
+</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<ul>
+<li>Un agente LLM solicita herramientas en bucle para lograr un objetivo.</li>
+<li>El agente decide en cada paso si ya tiene suficiente información para responder o si necesita consultar algo más.</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="d-langgraph-cuando-el-pipeline-necesita-tomar-decisiones" class="slide level2">
+<h2>04d · LangGraph: cuando el pipeline necesita tomar decisiones</h2>
+<blockquote>
+<p>LangGraph extiende LangChain para construir pipelines que no son lineales — donde el flujo puede ramificarse, repetirse o decidir qué hacer según el resultado de cada paso.</p>
+</blockquote>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="lo-que-agrega-langgraph">Lo que agrega LangGraph</h3>
+<ul>
+<li>Un RAG básico es lineal: pregunta → retriever → LLM → respuesta.</li>
+<li>LangGraph permite construir flujos donde el sistema puede, por ejemplo, evaluar si la respuesta fue suficiente y volver a buscar si no lo fue.</li>
+<li>LangGraph te obliga a definir ese loop como un <strong>grafo explícito</strong>.</li>
+<li>Defines tú mismo cada nodo y cada transición — el flujo deja de ser una caja negra.</li>
+</ul>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Capacidad</th>
+<th>LangChain</th>
+<th>LangGraph</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Agente simple</td>
+<td>✅</td>
+<td>innecesario</td>
+</tr>
+<tr class="even">
+<td>Pausar y aprobar pasos</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr class="odd">
+<td>Flujos condicionales</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr class="even">
+<td>Estado persistente</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr class="odd">
+<td>Debugging paso a paso</td>
+<td>difícil</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+</div><div class="column" style="width:50%;">
+<img data-src="imagenes/langgraph_ej.png" class="r-stretch">
+</div></div>
+</section>
+<section id="e-openrouter-acceso-a-múltiples-modelos" class="slide level2">
+<h2>04e · OpenRouter: acceso a múltiples modelos</h2>
+<p><strong>OpenRouter</strong> es una API unificada (compatible con OpenAI) que da acceso a modelos de varios proveedores.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a><span class="im">from</span> langchain_openai <span class="im">import</span> ChatOpenAI</span>
+<span id="cb3-2"><a href=""></a></span>
+<span id="cb3-3"><a href=""></a>llm <span class="op">=</span> ChatOpenAI(</span>
+<span id="cb3-4"><a href=""></a>    base_url<span class="op">=</span><span class="st">"https://openrouter.ai/api/v1"</span>,</span>
+<span id="cb3-5"><a href=""></a>    api_key<span class="op">=</span><span class="st">"sk-or-..."</span>,           <span class="co"># API key de OpenRouter</span></span>
+<span id="cb3-6"><a href=""></a>    model<span class="op">=</span><span class="st">"meta-llama/llama-3.3-70b-instruct:free"</span>,  <span class="co"># GRATIS</span></span>
+<span id="cb3-7"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<h3 id="modelos-gratuitos-útiles-para-pruebas">Modelos gratuitos útiles para pruebas</h3>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Modelo</th>
+<th>Contexto</th>
+<th>Uso ideal</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>meta-llama/llama-3.3-70b-instruct:free</code></td>
+<td>66K tokens</td>
+<td>RAG general, mejor soporte en español</td>
+</tr>
+<tr class="even">
+<td><code>google/gemma-4-31b-it:free</code></td>
+<td>262K tokens</td>
+<td>Multilingüe (140+ idiomas), documentos largos</td>
+</tr>
+<tr class="odd">
+<td><code>qwen/qwen3-next-80b-a3b-instruct:free</code></td>
+<td>262K tokens</td>
+<td>Optimizado para RAG y tool use</td>
+</tr>
+<tr class="even">
+<td><code>openai/gpt-oss-20b:free</code></td>
+<td>131K tokens</td>
+<td>Rápido y liviano, ideal para pruebas</td>
+</tr>
+<tr class="odd">
+<td><code>nvidia/nemotron-3-super-120b-a12b:free</code></td>
+<td>1M tokens</td>
+<td>Contexto máximo, tareas complejas</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Obtén tu API key gratis en <a href="https://openrouter.ai">openrouter.ai</a></p>
+</blockquote>
+</section>
+<section id="a-por-qué-falla-el-retrieval-básico" class="slide level2">
+<h2>05a · ⚠️ Por qué falla el retrieval básico</h2>
+<blockquote>
+<p><em>“Buscar los top 5 chunks y rezar no es una estrategia — es un punto de partida.”</em></p>
+</blockquote>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>1. El chunking rompe el significado</strong> Una idea se parte en dos fragmentos. Ninguno es suficiente por sí solo para responder la pregunta.</p>
+<p><strong>2. Similitud matemática ≠ relevancia real</strong> Un chunk puede estar “cerca” de la consulta en el espacio vectorial y aun así no contener la respuesta.</p>
+<p><strong>3. Los usuarios no hacen preguntas perfectas</strong> Una consulta corta necesita ser expandida antes de que el retriever tenga alguna chance de encontrar el material correcto.</p>
+</div><div class="column" style="width:50%;">
+<p><strong>4. Algunas respuestas necesitan más contexto del que un chunk puede dar</strong> Un párrafo solo puede no ser suficiente — a veces el modelo necesita la sección completa o el documento entero.</p>
+<p><strong>5. No todas las preguntas deberían usar el mismo retrieval</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Tipo de pregunta</th>
+<th>Retrieval ideal</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Conceptual</td>
+<td>Búsqueda semántica</td>
+</tr>
+<tr class="even">
+<td>Término exacto / código</td>
+<td>BM25 / keyword</td>
+</tr>
+<tr class="odd">
+<td>Datos estructurados</td>
+<td>SQL / filtro</td>
+</tr>
+<tr class="even">
+<td>Entidades relacionadas</td>
+<td>Knowledge graph</td>
+</tr>
+</tbody>
+</table>
+</div></div>
+</section>
+<section id="b-estrategias-avanzadas-de-retrieval" class="slide level2">
+<h2>05b · Estrategias avanzadas de retrieval</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Estrategia</th>
+<th>Descripción</th>
+<th>Cuándo usar</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>MMR</strong></td>
+<td>Evita chunks redundantes</td>
+<td>Docs repetitivos</td>
+</tr>
+<tr class="even">
+<td><strong>Hybrid</strong></td>
+<td>BM25 + vectores</td>
+<td>Términos exactos</td>
+</tr>
+<tr class="odd">
+<td><strong>Multi-query</strong></td>
+<td>Variantes de la pregunta</td>
+<td>Preguntas ambiguas</td>
+</tr>
+<tr class="even">
+<td><strong>Compresión</strong></td>
+<td>Extrae parte relevante</td>
+<td>Chunks grandes</td>
+</tr>
+<tr class="odd">
+<td><strong>Re-ranking</strong></td>
+<td>Segundo modelo de orden</td>
+<td>Alta precisión</td>
+</tr>
+</tbody>
+</table>
+</div><div class="column" style="width:50%;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>retriever <span class="op">=</span> vectorstore.as_retriever(</span>
+<span id="cb4-2"><a href=""></a>    search_type<span class="op">=</span><span class="st">"mmr"</span>,</span>
+<span id="cb4-3"><a href=""></a>    search_kwargs<span class="op">=</span>{<span class="st">"k"</span>: <span class="dv">5</span>, <span class="st">"fetch_k"</span>: <span class="dv">20</span>, <span class="st">"lambda_mult"</span>: <span class="fl">0.7</span>}</span>
+<span id="cb4-4"><a href=""></a>)</span>
+<span id="cb4-5"><a href=""></a></span>
+<span id="cb4-6"><a href=""></a>bm25_retriever <span class="op">=</span> BM25Retriever.from_documents(</span>
+<span id="cb4-7"><a href=""></a>    documents<span class="op">=</span>docs_split,</span>
+<span id="cb4-8"><a href=""></a>    k<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb4-9"><a href=""></a></span>
+<span id="cb4-10"><a href=""></a>hybrid_retriever <span class="op">=</span> EnsembleRetriever(</span>
+<span id="cb4-11"><a href=""></a>    retrievers<span class="op">=</span>[</span>
+<span id="cb4-12"><a href=""></a>        bm25_retriever,  <span class="co"># Sparse (keywords)</span></span>
+<span id="cb4-13"><a href=""></a>        retriever,       <span class="co"># Dense semántico</span></span>
+<span id="cb4-14"><a href=""></a>    ],</span>
+<span id="cb4-15"><a href=""></a>    weights<span class="op">=</span>[<span class="fl">0.5</span>, <span class="fl">0.5</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<aside class="notes">
+<p>Los parámetros:</p>
+<p>search_type=“mmr” — el algoritmo de búsqueda. MMR significa Maximal Marginal Relevance. En vez de devolver simplemente los 5 chunks más similares a la pregunta, busca chunks que sean relevantes y diversos entre sí — evita devolverte 5 veces el mismo párrafo con palabras distintas.</p>
+<p>fetch_k=20 — primero recupera los 20 chunks más similares a la pregunta por similitud coseno normal.</p>
+<p>k=5 — de esos 20, selecciona los 5 mejores aplicando el criterio MMR (relevancia + diversidad). Siempre fetch_k &gt; k.</p>
+<p>lambda_mult=0.7 — controla el balance entre relevancia y diversidad:</p>
+<p>1.0 → solo relevancia (MMR se comporta como similarity search normal) 0.0 → solo diversidad (chunks muy distintos entre sí aunque sean poco relevantes) 0.7 → 70% relevancia, 30% diversidad ← valor típico recomendado</p>
+<p>BM25Retriever — búsqueda por palabras clave clásica (sparse). Es el algoritmo detrás de buscadores como Google antes del machine learning. Busca coincidencias exactas de palabras y les da un puntaje según frecuencia. No entiende semántica pero es muy bueno cuando la pregunta tiene términos exactos como códigos, siglas o nombres propios.</p>
+<p>EnsembleRetriever — combina ambos con un peso para cada uno</p>
+<p>Contextual Compression es una técnica que en vez de devolver el chunk completo, extrae solo la parte del chunk que es relevante para la pregunta.La desventaja es que usa el LLM dos veces — una para comprimir y otra para responder — lo que duplica la latencia y el costo. Por eso se usa principalmente cuando los chunks son muy grandes o cuando el contexto tiene mucho ruido.</p>
+<p>RAG Re-Ranking El retriever devuelve los top-K chunks por similitud vectorial, pero la similitud coseno no siempre refleja relevancia real. Un segundo modelo (CrossEncoder) reordena esos K chunks evaluando cada uno contra la pregunta en profundidad. Más lento, pero más preciso.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="c-el-ecosistema-rag-avanzado" class="slide level2">
+<h2>05c · El ecosistema RAG avanzado</h2>
+<blockquote>
+<p>El RAG básico es el punto de partida. Estas son las direcciones en las que puedes profundizar:</p>
+</blockquote>
+<img data-src="imagenes/rag_ideas.webp" class="r-stretch">
+<aside class="notes">
+<p>Context-Aware Chunking En vez de dividir el documento cada N caracteres, detecta la estructura semántica del texto usando Embeddings semánticos — párrafos, secciones, ideas completas — y corta respetando esos límites. Resultado: cada chunk tiene una idea completa, no frases cortadas a la mitad. Convierte cada oración en un vector y mide la similitud coseno entre oraciones consecutivas. Cuando la similitud cae bruscamente, detecta un cambio de tema y corta ahí. La desventaja es el costo — necesitas calcular embeddings para cada oración durante la indexación, lo que es mucho más lento que simplemente contar caracteres.</p>
+<p>Contextual Retrieval Antes de indexar, enriquece cada chunk agregándole el título de la sección y un resumen del documento al que pertenece. Así el vector no representa solo el fragmento sino su contexto dentro del documento completo — mejora mucho la recuperación en documentos largos.</p>
+<p>RAG Re-Ranking El retriever devuelve los top-K chunks por similitud vectorial, pero la similitud coseno no siempre refleja relevancia real. Un segundo modelo (CrossEncoder) reordena esos K chunks evaluando cada uno contra la pregunta en profundidad. Más lento, pero más preciso.</p>
+<p>Query Expansion Antes de buscar, expande la pregunta original generando variantes o términos relacionados. Si alguien pregunta “empleo informal”, también busca “trabajo no registrado”, “sector informal”, “sin contrato”. Captura más chunks relevantes que una búsqueda literal.</p>
+<p>Multi-Query RAG Similar a query expansion pero más agresivo: el LLM genera N versiones distintas de la pregunta, se hacen N búsquedas en paralelo y los resultados se combinan y deduplicán. Útil cuando la pregunta es ambigua o puede responderse desde ángulos distintos.</p>
+<p>Agentic RAG En vez de un pipeline fijo (pregunta → retriever → LLM), un agente decide dinámicamente qué herramienta usar: búsqueda vectorial, consulta SQL, búsqueda web, recuperación de documentos específicos. El LLM actúa como orquestador que razona sobre qué fuente consultar según la pregunta.</p>
+<p>Self-Reflective RAG Después de generar la respuesta, el LLM la evalúa: ¿está fundamentada en el contexto? ¿respondió la pregunta? Si detecta que la respuesta es insuficiente, refina la búsqueda y vuelve a intentarlo. Agrega un loop de autocorrección al pipeline básico.</p>
+<p>Knowledge Graph RAG A diferencia de un RAG básico que utiliza una base de datos vectorial para recuperar texto semánticamente similar, GraphRAG mejora RAG incorporando grafos de conocimiento (KG). Los grafos de conocimiento son estructuras de datos que almacenan y vinculan datos en función de sus relaciones. Ejemplo: “¿Qué ocupaciones del gran grupo 2 trabajan en el sector minero?”</p>
+<p>Para responder eso necesitas conectar información de dos clasificadores distintos (CIUO y CAENES) que en el texto plano están en documentos separados sin ningún vínculo explícito. El retriever vectorial recuperaría chunks del gran grupo 2 O chunks del sector minero, pero no sabría conectarlos.</p>
+<p>Fine-Tuned Embeddings En vez de usar un modelo de embeddings genérico, lo entrenas con datos de tu dominio específico. El modelo aprende que en tu contexto “glosa” y “descripción ocupacional” son sinónimos, o que “CIUO” y “clasificador” están relacionados. Mejora el retrieval en dominios técnicos donde el lenguaje es muy especializado.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="d-evaluación-de-un-sistema-rag" class="slide level2">
+<h2>05d · Evaluación de un sistema RAG</h2>
+<p>Un buen RAG necesita métricas en <strong>dos dimensiones</strong>:</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="retrieval">Retrieval</h3>
+<ul>
+<li><p><strong>Precision@K</strong>: fracción de chunks útiles en top-K</p>
+<ul>
+<li>(Nº de documentos relevantes en el top K) / K</li>
+</ul></li>
+<li><p><strong>Recall@K</strong>: ¿está el chunk relevante en los top-K?</p>
+<ul>
+<li>(Nº de documentos relevantes en el top K) / (Total de documentos relevantes en el corpus)</li>
+</ul></li>
+<li><p><strong>MRR</strong>: posición promedio del primer resultado correcto</p></li>
+</ul>
+</div><div class="column" style="width:50%;">
+<h3 id="generación">Generación</h3>
+<ul>
+<li><strong>Faithfulness</strong>: ¿la respuesta está fundamentada en el contexto?</li>
+<li><strong>Answer Relevancy</strong>: ¿responde la pregunta?</li>
+<li><strong>Context Utilization</strong>: ¿usa bien el contexto?</li>
+</ul>
+</div></div>
+<h3 id="framework-ragas">Framework: RAGAs</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a><span class="im">from</span> ragas <span class="im">import</span> evaluate</span>
+<span id="cb5-2"><a href=""></a><span class="im">from</span> ragas.metrics <span class="im">import</span> faithfulness, answer_relevancy, context_recall</span>
+<span id="cb5-3"><a href=""></a></span>
+<span id="cb5-4"><a href=""></a>resultado <span class="op">=</span> evaluate(dataset, metrics<span class="op">=</span>[faithfulness, answer_relevancy, context_recall])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<aside class="notes">
+<p>Precision answers a simple question. Out of everything you retrieved, how much of it was actually useful? A precision of 0.60 at K=5 means your context window is 40% garbage. Every irrelevant document increases the chance of a confused, diluted, or hallucinated answer.</p>
+<p>If your precision is dropping, you need to look at your embedding model. Your similarity threshold is too loose. You are retrieving documents that are only tangentially related to the query.</p>
+<p>Precision is a purity metric. It tells you whether your retrieval has a noise problem.</p>
+<p>Recall asks the opposite question. Out of everything that should have been retrieved, how much did you actually find?</p>
+<p>Low recall means your users are getting incomplete answers. They are not seeing important perspectives.</p>
+<p>If your recall is low, you need to retrieve more documents (increase K). Or you need a better embedding model that captures semantic similarity more broadly.</p>
+<p>As K increases, precision drops and recall rises. You are pulling in more documents, which means you find more relevant ones (recall goes up), but you also let in more noise (precision goes down).</p>
+<p>Mean Reciprocal Rank (MRR): It measures speed. How quickly does the first relevant document appear in your ranked results?</p>
+<p>An MRR of 1.0 means every single query gets its first relevant document at position 1.</p>
+<p>In a RAG system, the order of retrieved documents affects the generated answer. Most LLMs pay more attention to the documents that appear first in the context.</p>
+<p>If your first relevant document is buried at position 3 and positions 1 and 2 are noise, the model might give more weight to the noise.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="a-casos-de-uso-reales" class="slide level2">
+<h2>06a · Casos de uso reales</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="rag-como-chatbot">💬 RAG como chatbot</h3>
+<p>Un asistente conversacional que responde preguntas sobre la CIUO-08-CL consultando el manual oficial, con citas de página.</p>
+<p><strong>¿Qué puede hacer?</strong></p>
+<ul>
+<li>Resolver dudas sobre definiciones y criterios de clasificación</li>
+<li>Comparar grupos ocupacionales similares</li>
+<li>Citar la página exacta del manual como fuente</li>
+</ul>
+<p><strong>Estrategia</strong></p>
+<ul>
+<li>Vectorless RAG (PageIndex)</li>
+</ul>
+<p><strong>Stack</strong></p>
+<ul>
+<li>PageIndex + LangChain + Gradio + OpenRouter</li>
+</ul>
+<p><a href="http://10.92.121.113:7860/">🔗Chatbot CIUO</a></p>
+</div><div class="column" style="width:50%;">
+<h3 id="rag-como-clasificador">🏷️ RAG como clasificador</h3>
+<p>Un pipeline que recibe una glosa ocupacional y devuelve su código CIUO-08-CL y CAENES, expuesto como API REST para integrarse con otros sistemas.</p>
+<p><strong>¿Qué puede hacer?</strong></p>
+<ul>
+<li>Clasificar glosas en diferentes niveles de desagregación</li>
+<li>Procesar miles de registros vía API</li>
+<li>Integrarse con pipelines de producción existentes</li>
+</ul>
+<p><strong>Estrategia</strong></p>
+<ul>
+<li>RAG agentico + re-ranking + retriever híbrido</li>
+</ul>
+<p><strong>Stack</strong></p>
+<ul>
+<li>LangChain + FastAPI + ChromaDB + OpenRouter</li>
+</ul>
+<p><a href="http://10.92.121.113:8001/docs">🔗 Clasificador RAG CIUO-CAENES</a></p>
+</div></div>
+</section>
+<section id="b-limitaciones-y-desafíos" class="slide level2">
+<h2>06b · Limitaciones y desafíos</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="limitaciones-técnicas">⚙️ Limitaciones técnicas</h3>
+<ul>
+<li><strong>Respuestas distribuidas</strong> — cuando la respuesta requiere sintetizar información de múltiples chunks o secciones, el retriever recupera fragmentos pero ninguno la contiene completa</li>
+<li><strong>Chunking imperfecto</strong> — los fragmentos pueden romper tablas, mezclar secciones y perder contexto entre uno y otro</li>
+<li><strong>Lost in the middle</strong> — el LLM tiende a ignorar los chunks del centro del contexto, aprovechando mejor el inicio y el final</li>
+<li><strong>Sensibilidad a la formulación</strong> — la misma pregunta escrita distinto puede recuperar chunks completamente diferentes</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<h3 id="desafíos-prácticos">🏗️ Desafíos prácticos</h3>
+<ul>
+<li><strong>Documentos difíciles</strong> — PDFs escaneados, tablas, imágenes y columnas se convierten mal a texto plano</li>
+<li><strong>El LLM puede ignorar el contexto</strong> — si el modelo no encuentra la respuesta en los chunks entregados, puede responder desde su memoria interna en vez de admitir que no sabe</li>
+<li><strong>Latencia doble</strong> — retrieval + generación en secuencia hace el sistema más lento que un LLM directo</li>
+<li><strong>Mantenimiento del índice</strong> — cuando los documentos cambian hay que re-indexar; sin un pipeline de actualización el vectorstore queda desactualizado</li>
+</ul>
+</div></div>
+<blockquote>
+<p><strong>Regla de oro:</strong> El 80% del trabajo en RAG no es el LLM, es limpiar, estructurar y fragmentar bien los documentos.</p>
+</blockquote>
+</section>
+<section id="c-recursos-para-seguir-aprendiendo" class="slide level2">
+<h2>06c · Recursos para seguir aprendiendo</h2>
+<h3 id="documentación-oficial">📚 Documentación oficial</h3>
+<ul>
+<li><a href="https://docs.langchain.com/oss/python/langchain/overview">LangChain</a> — framework principal</li>
+<li><a href="https://docs.langchain.com/oss/python/langgraph/overview">LangGraph</a> — agentes y flujos controlados</li>
+<li><a href="https://openrouter.ai/docs">OpenRouter</a> — API unificada de modelos gratuitos</li>
+<li><a href="https://docs.trychroma.com">ChromaDB</a> — vector store local</li>
+<li><a href="https://docs.ragas.io">RAGAs</a> — evaluación automatizada de pipelines RAG</li>
+</ul>
+<h3 id="papers-fundamentales">📄 Papers fundamentales</h3>
+<ul>
+<li>Lewis et al.&nbsp;(2020) — <em>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</em> — el paper que inventó RAG</li>
+<li>Es et al.&nbsp;(2023) — <em>RAGAS: Automated Evaluation of RAG Pipelines</em> — métricas estándar de evaluación</li>
+<li>Anthropic (2024) — <em>Contextual Retrieval</em> — cómo enriquecer chunks antes de indexar</li>
+</ul>
+<h3 id="para-aprender-haciendo">🎓 Para aprender haciendo</h3>
+<ul>
+<li><a href="https://academy.langchain.com">LangChain Academy</a> — cursos oficiales gratuitos, incluye RAG y LangGraph</li>
+<li><a href="https://www.deeplearning.ai/short-courses/">DeepLearning.AI — LangChain courses</a> — cursos cortos gratuitos de RAG y LLMs, en inglés</li>
+</ul>
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="index_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="index_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="index_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="index_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="index_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="index_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="index_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="index_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="index_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="index_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': true,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 50,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 2560,
+
+        height: 1440,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+            let selectedAnnoteEl;
+            const selectorForAnnotation = ( cell, annotation) => {
+              let cellAttr = 'data-code-cell="' + cell + '"';
+              let lineAttr = 'data-code-annotation="' +  annotation + '"';
+              const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+              return selector;
+            }
+            const selectCodeLines = (annoteEl) => {
+              const doc = window.document;
+              const targetCell = annoteEl.getAttribute("data-target-cell");
+              const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+              const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+              const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+              const lineIds = lines.map((line) => {
+                return targetCell + "-" + line;
+              })
+              let top = null;
+              let height = null;
+              let parent = null;
+              if (lineIds.length > 0) {
+                  //compute the position of the single el (top and bottom and make a div)
+                  const el = window.document.getElementById(lineIds[0]);
+                  top = el.offsetTop;
+                  height = el.offsetHeight;
+                  parent = el.parentElement.parentElement;
+                if (lineIds.length > 1) {
+                  const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+                  const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+                  height = bottom - top;
+                }
+                if (top !== null && height !== null && parent !== null) {
+                  // cook up a div (if necessary) and position it 
+                  let div = window.document.getElementById("code-annotation-line-highlight");
+                  if (div === null) {
+                    div = window.document.createElement("div");
+                    div.setAttribute("id", "code-annotation-line-highlight");
+                    div.style.position = 'absolute';
+                    parent.appendChild(div);
+                  }
+                  div.style.top = top - 2 + "px";
+                  div.style.height = height + 4 + "px";
+                  div.style.left = 0;
+                  let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+                  if (gutterDiv === null) {
+                    gutterDiv = window.document.createElement("div");
+                    gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                    gutterDiv.style.position = 'absolute';
+                    const codeCell = window.document.getElementById(targetCell);
+                    const gutter = codeCell.querySelector('.code-annotation-gutter');
+                    gutter.appendChild(gutterDiv);
+                  }
+                  gutterDiv.style.top = top - 2 + "px";
+                  gutterDiv.style.height = height + 4 + "px";
+                }
+                selectedAnnoteEl = annoteEl;
+              }
+            };
+            const unselectCodeLines = () => {
+              const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+              elementsIds.forEach((elId) => {
+                const div = window.document.getElementById(elId);
+                if (div) {
+                  div.remove();
+                }
+              });
+              selectedAnnoteEl = undefined;
+            };
+              // Handle positioning of the toggle
+          window.addEventListener(
+            "resize",
+            throttle(() => {
+              elRect = undefined;
+              if (selectedAnnoteEl) {
+                selectCodeLines(selectedAnnoteEl);
+              }
+            }, 10)
+          );
+          function throttle(fn, ms) {
+          let throttle = false;
+          let timer;
+            return (...args) => {
+              if(!throttle) { // first call gets through
+                  fn.apply(this, args);
+                  throttle = true;
+              } else { // all the others get throttled
+                  if(timer) clearTimeout(timer); // cancel #2
+                  timer = setTimeout(() => {
+                    fn.apply(this, args);
+                    timer = throttle = false;
+                  }, ms);
+              }
+            };
+          }
+            const annoteTargets = window.document.querySelectorAll('.code-annotation-anchor');
+            for (let i=0; i<annoteTargets.length; i++) {
+              const annoteTarget = annoteTargets[i];
+              const targetCell = annoteTarget.getAttribute("data-target-cell");
+              const targetAnnotation = annoteTarget.getAttribute("data-target-annotation");
+              const contentFn = () => {
+                const content = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+                if (content) {
+                  const tipContent = content.cloneNode(true);
+                  tipContent.classList.add("code-annotation-tip-content");
+                  return tipContent.outerHTML;
+                }
+              }
+              const config = {
+                allowHTML: true,
+                content: contentFn,
+                onShow: (instance) => {
+                  selectCodeLines(instance.reference);
+                  instance.reference.classList.add('code-annotation-active');
+                  window.tippy.hideAll();
+                },
+                onHide: (instance) => {
+                  unselectCodeLines();
+                  instance.reference.classList.remove('code-annotation-active');
+                },
+                maxWidth: 300,
+                delay: [50, 0],
+                duration: [200, 0],
+                offset: [5, 10],
+                arrow: true,
+                appendTo: function(el) {
+                  return el.parentElement.parentElement.parentElement;
+                },
+                interactive: true,
+                interactiveBorder: 10,
+                theme: 'light-border',
+                placement: 'right',
+                popperOptions: {
+                  modifiers: [
+                  {
+                    name: 'flip',
+                    options: {
+                      flipVariations: false, // true by default
+                      allowedAutoPlacements: ['right'],
+                      fallbackPlacements: ['right', 'top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left'],
+                    },
+                  },
+                  {
+                    name: 'preventOverflow',
+                    options: {
+                      mainAxis: false,
+                      altAxis: false
+                    }
+                  }
+                  ]        
+                }      
+              };
+              window.tippy(annoteTarget, config); 
+            }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>
